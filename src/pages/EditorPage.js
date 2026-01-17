@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Client from "../components/Client";
-import Editor from "../components/editor";
+import Editor from "../components/EditorMonaco";
 import { initSocket } from "../socket";
 import ACTIONS from "../Actions";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
