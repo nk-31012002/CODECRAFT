@@ -5,7 +5,7 @@ import { initSocket } from "../socket";
 import ACTIONS from "../Actions";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import axios from "axios";     
+import axios from "axios";
 
 const EditorPage = () => {
     const socketRef = useRef(null);
@@ -57,9 +57,13 @@ const EditorPage = () => {
                     return prev.filter((client) => client.socketId !== socketId);
                 });
             });
+            socketRef.current.on(ACTIONS.OUTPUT_CHANGE, ({ output }) => {
+            setOutput(output);
+        });
         };
         init();
         return () => {
+            socketRef.current.off(ACTIONS.OUTPUT_CHANGE);
             socketRef.current.off(ACTIONS.JOINED);
             socketRef.current.off(ACTIONS.DISCONNECTED);
             socketRef.current.disconnect();
@@ -67,7 +71,7 @@ const EditorPage = () => {
     }, []);
 
     // Function to simulate code execution
-    const runCode = async () => {
+const runCode = async () => {
     if (!codeRef.current) {
         toast.error("Please write some code first");
         return;
@@ -75,6 +79,12 @@ const EditorPage = () => {
 
     setIsCompiling(true);
     setOutput("Compiling...");
+
+    // Notify others that compilation has started
+    socketRef.current.emit(ACTIONS.OUTPUT_CHANGE, {
+        roomId,
+        output: "Compiling...",
+    });
 
     const languageMap = {
         javascript: 63,
@@ -107,6 +117,10 @@ const EditorPage = () => {
                 // Decode results from Base64
                 const finalOutput = stdout ? atob(stdout) : (stderr ? atob(stderr) : (compile_output ? atob(compile_output) : "No output"));
                 setOutput(finalOutput);
+                socketRef.current.emit(ACTIONS.OUTPUT_CHANGE, {
+                    roomId,
+                    output: finalOutput,
+                });
                 setIsCompiling(false);
                 toast.success("Run completed");
             }
@@ -115,7 +129,12 @@ const EditorPage = () => {
         checkStatus();
     } catch (err) {
         console.error(err);
-        setOutput("Error: " + (err.response?.data?.message || "Internal Server Error"));
+        const errorMsg = "Error: " + (err.response?.data?.message || "Internal Server Error");
+        setOutput(errorMsg);
+        socketRef.current.emit(ACTIONS.OUTPUT_CHANGE, {
+            roomId,
+            output: errorMsg,
+        });
         setIsCompiling(false);
     }
 };
