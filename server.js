@@ -52,7 +52,14 @@ io.on('connection', (socket) => {
     socket.on(ACTIONS.OUTPUT_CHANGE, ({ roomId, output }) => {
         socket.in(roomId).emit(ACTIONS.OUTPUT_CHANGE, { output });
     });
-
+    
+    socket.on(ACTIONS.CURSOR_CHANGE, ({ roomId, cursor, username }) => {
+        socket.in(roomId).emit(ACTIONS.CURSOR_CHANGE, {
+            socketId: socket.id,
+            cursor,
+            username
+        });
+    });
     
     socket.on('disconnecting', () => {
         const rooms = [...socket.rooms];

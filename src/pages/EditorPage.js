@@ -197,6 +197,7 @@ const runCode = async () => {
                     socketRef={socketRef} 
                     roomId={roomId} 
                     language={language}
+                    username={location.state?.username} // Add this line
                     onCodeChange={(code) => { codeRef.current = code; }} 
                 />
                 <div className="outputBox">
