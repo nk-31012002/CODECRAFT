@@ -69,13 +69,22 @@ import React, { useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import ACTIONS from "../Actions";
 
-const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username }) => {
+const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username, theme }) => {
     const editorRef = useRef(null);
     const cursorsRef = useRef({});
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
         editor.focus();
+
+        monaco.editor.defineTheme('monokai', {
+            base: 'vs-dark',
+            inherit: true,
+            rules: [{ background: '272822' }],
+            colors: {
+                'editor.background': '#272822',
+            }
+        });
 
         // 1. Listen for local cursor movement
         editor.onDidChangeCursorPosition((e) => {
@@ -147,6 +156,7 @@ const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username }
 
     // Comprehensive Cleanup
     useEffect(() => {
+        const socket = socketRef.current; // Capture current value
         return () => {
             if (socketRef.current) {
                 socketRef.current.off(ACTIONS.CODE_CHANGE);
@@ -154,14 +164,14 @@ const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username }
                 socketRef.current.off(ACTIONS.OUTPUT_CHANGE);
             }
         };
-    }, [socketRef.current]);
+    }, [socketRef]);
 
     return (
         <div className="monacoContainer">
             <Editor
                 height="75vh"
                 width="100%"
-                theme="vs-dark"
+                theme={theme}
                 language={language}
                 onChange={handleEditorChange}
                 onMount={handleEditorDidMount}

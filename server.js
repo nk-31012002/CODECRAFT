@@ -58,8 +58,8 @@ io.on('connection', (socket) => {
             socketId: socket.id,
             cursor,
             username
-        });
     });
+});
     
     socket.on('disconnecting', () => {
         const rooms = [...socket.rooms];

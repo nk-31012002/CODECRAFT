@@ -19,9 +19,23 @@ const EditorPage = () => {
     const [language, setLanguage] = useState("javascript");
     const [output, setOutput] = useState("");
     const [isCompiling, setIsCompiling] = useState(false);
+    const [theme, setTheme] = useState("vs-dark"); 
 
     useEffect(() => {
         const init = async () => {
+            let authUsername = location.state?.username;
+        
+            if (!authUsername) {
+                try {
+                    const response = await axios.get('/api/me');
+                    authUsername = response.data.displayName; // Google Name
+                } catch (err) {
+                    toast.error("Please login to join this room");
+                    reactNavigator('/');
+                    return;
+                }
+            }
+            
             socketRef.current = await initSocket();
             socketRef.current.on('connect_error', (err) => handleError(err));
             socketRef.current.on('connect_failed', (err) => handleError(err));
@@ -32,9 +46,13 @@ const EditorPage = () => {
                 reactNavigator('/');
             }
 
+            // socketRef.current.emit(ACTIONS.JOIN, {
+            //     roomId,
+            //     username: location.state?.username,
+            // });
             socketRef.current.emit(ACTIONS.JOIN, {
                 roomId,
-                username: location.state?.username,
+                username: authUsername,
             });
 
             socketRef.current.on(
@@ -48,6 +66,7 @@ const EditorPage = () => {
                         code: codeRef.current,
                         socketId,
                     });
+                    setClients(clients);
                 }
             );
 
@@ -57,16 +76,20 @@ const EditorPage = () => {
                     return prev.filter((client) => client.socketId !== socketId);
                 });
             });
-            socketRef.current.on(ACTIONS.OUTPUT_CHANGE, ({ output }) => {
-            setOutput(output);
-        });
+
+                socketRef.current.on(ACTIONS.OUTPUT_CHANGE, ({ output }) => {
+                setOutput(output);
+            });
         };
         init();
+
         return () => {
+            if(socketRef.current) {
             socketRef.current.off(ACTIONS.OUTPUT_CHANGE);
             socketRef.current.off(ACTIONS.JOINED);
             socketRef.current.off(ACTIONS.DISCONNECTED);
             socketRef.current.disconnect();
+            }
         };
     }, []);
 
@@ -163,7 +186,18 @@ const runCode = async () => {
                     <div className="logo">
                         <img className="logoImage" src="/code-sync2.png" alt="logo" />
                     </div>
-                    
+                    <h3>Select Theme</h3>
+                    <select 
+                        className="inputBox" 
+                        value={theme} 
+                        onChange={(e) => setTheme(e.target.value)}
+                        style={{ marginBottom: '20px', width: '100%', background: '#282a36', color: '#fff' }}
+                    >
+                        <option value="vs-dark">VS Dark</option>
+                        <option value="light">VS Light</option>
+                        <option value="hc-black">High Contrast</option>
+                    </select>
+
                     <h3>Select Language</h3>
                     <select 
                         className="inputBox" 
@@ -197,7 +231,8 @@ const runCode = async () => {
                     socketRef={socketRef} 
                     roomId={roomId} 
                     language={language}
-                    username={location.state?.username} // Add this line
+                    theme={theme} // Pass the theme prop
+                    username={location.state?.username}
                     onCodeChange={(code) => { codeRef.current = code; }} 
                 />
                 <div className="outputBox">
