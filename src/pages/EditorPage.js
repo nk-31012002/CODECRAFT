@@ -14,7 +14,6 @@ const EditorPage = () => {
     const { roomId } = useParams();
     const reactNavigator = useNavigate();
 
-    // New States for Advancement
     const [clients, setClients] = useState([]);
     const [language, setLanguage] = useState("javascript");
     const [output, setOutput] = useState("");
@@ -28,7 +27,7 @@ const EditorPage = () => {
             if (!authUsername) {
                 try {
                     const response = await axios.get('/api/me');
-                    authUsername = response.data.displayName; // Google Name
+                    authUsername = response.data.displayName;
                 } catch (err) {
                     toast.error("Please login to join this room");
                     reactNavigator('/');
@@ -46,10 +45,6 @@ const EditorPage = () => {
                 reactNavigator('/');
             }
 
-            // socketRef.current.emit(ACTIONS.JOIN, {
-            //     roomId,
-            //     username: location.state?.username,
-            // });
             socketRef.current.emit(ACTIONS.JOIN, {
                 roomId,
                 username: authUsername,
@@ -93,7 +88,6 @@ const EditorPage = () => {
         };
     }, []);
 
-    // Function to simulate code execution
 const runCode = async () => {
     if (!codeRef.current) {
         toast.error("Please write some code first");
@@ -103,7 +97,6 @@ const runCode = async () => {
     setIsCompiling(true);
     setOutput("Compiling...");
 
-    // Notify others that compilation has started
     socketRef.current.emit(ACTIONS.OUTPUT_CHANGE, {
         roomId,
         output: "Compiling...",
@@ -116,28 +109,25 @@ const runCode = async () => {
         java: 62
     };
 
-    // New Free URL (No RapidAPI key required)
     const SUBMIT_URL = "https://ce.judge0.com/submissions?base64_encoded=true&fields=*";
 
     try {
         const response = await axios.post(SUBMIT_URL, {
             language_id: languageMap[language],
-            source_code: btoa(codeRef.current), // Encode code to Base64
+            source_code: btoa(codeRef.current),
         });
 
         const token = response.data.token;
 
-        // Polling function to get results
         const checkStatus = async () => {
             const GET_URL = `https://ce.judge0.com/submissions/${token}?base64_encoded=true&fields=*`;
             const statusResponse = await axios.get(GET_URL);
             
             const { status, stdout, stderr, compile_output } = statusResponse.data;
 
-            if (status.id <= 2) { // Still processing
+            if (status.id <= 2) {   
                 setTimeout(checkStatus, 1000);
             } else {
-                // Decode results from Base64
                 const finalOutput = stdout ? atob(stdout) : (stderr ? atob(stderr) : (compile_output ? atob(compile_output) : "No output"));
                 setOutput(finalOutput);
                 socketRef.current.emit(ACTIONS.OUTPUT_CHANGE, {
