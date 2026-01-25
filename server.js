@@ -14,10 +14,18 @@ const { PrismaClient } = require('./prisma/generated/client');
 const ACTIONS = require('./src/Actions');
 
 const app = express();
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 const io = new Server(server);
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const dbUrl = process.env.DATABASE_URL.replace(/^["']|["']$/g, '').trim();
+const pool = new Pool({
+    connectionString: dbUrl,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter }); 
 
@@ -38,7 +46,6 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
-app.set('trust proxy', 1);
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
