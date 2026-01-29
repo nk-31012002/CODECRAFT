@@ -4,8 +4,21 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import { Toaster } from 'react-hot-toast';
 import Home from './pages/Home';
 import EditorPage from './pages/EditorPage';
+import { supabase } from './supabaseClient';
+import { useEffect } from 'react';
 
 function App() {
+
+  useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') {
+      // You can now access user info: session.user.user_metadata.full_name
+      console.log("User logged in:", session.user)
+    }
+  })
+  return () => subscription.unsubscribe()
+}, [])
+
   return (
     <>
       <div>

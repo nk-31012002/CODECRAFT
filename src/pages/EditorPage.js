@@ -6,6 +6,7 @@ import ACTIONS from "../Actions";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import { supabase } from '../supabaseClient';
 
 const EditorPage = () => {
     const socketRef = useRef(null);
@@ -20,21 +21,45 @@ const EditorPage = () => {
     const [isCompiling, setIsCompiling] = useState(false);
     const [theme, setTheme] = useState("vs-dark"); 
 
+    const [currentUser, setCurrentUser] = useState(null);
+
     useEffect(() => {
         const init = async () => {
+
+            const {data:{session}} = await supabase.auth.getSession();
+            
             let authUsername = location.state?.username;
-        
-            if (!authUsername) {
-                try {
-                    const response = await axios.get('/api/me');
-                    authUsername = response.data.displayName;
-                } catch (err) {
-                    toast.error("Please login to join this room");
-                    reactNavigator('/');
-                    return;
+
+            let avatarUrl = null;
+            if(session){
+                const { data: profile, error } = await supabase 
+                .from('profiles')
+                .select('username, avatar_url')
+                .eq('id', session.user.id)
+                .single();
+
+                if(!error && profile){
+                    authUsername = profile.username;
+                    avatarUrl = profile.avatar_url;
                 }
             }
+
+            if (!authUsername) {
+                // try {
+                //     const response = await axios.get('/api/me');
+                //     authUsername = response.data.displayName; // Google Name
+                // } catch (err) {
+                //     toast.error("Please login to join this room");
+                //     reactNavigator('/');
+                //     return;
+                // }
+                toast.error("Please login via Google to join this room");
+                reactNavigator('/');
+                return;
+            }
             
+            setCurrentUser({ username: authUsername, avatar: avatarUrl });
+
             socketRef.current = await initSocket();
             socketRef.current.on('connect_error', (err) => handleError(err));
             socketRef.current.on('connect_failed', (err) => handleError(err));
@@ -61,7 +86,6 @@ const EditorPage = () => {
                         code: codeRef.current,
                         socketId,
                     });
-                    setClients(clients);
                 }
             );
 
@@ -80,13 +104,14 @@ const EditorPage = () => {
 
         return () => {
             if(socketRef.current) {
-            socketRef.current.off(ACTIONS.OUTPUT_CHANGE);
-            socketRef.current.off(ACTIONS.JOINED);
-            socketRef.current.off(ACTIONS.DISCONNECTED);
-            socketRef.current.disconnect();
+                socketRef.current.off(ACTIONS.OUTPUT_CHANGE);
+                socketRef.current.off(ACTIONS.JOINED);
+                socketRef.current.off(ACTIONS.DISCONNECTED);
+                socketRef.current.disconnect();
             }
         };
-    }, []);
+    }, [reactNavigator, roomId, location.state]);
+
 
 const runCode = async () => {
     if (!codeRef.current) {
@@ -125,7 +150,7 @@ const runCode = async () => {
             
             const { status, stdout, stderr, compile_output } = statusResponse.data;
 
-            if (status.id <= 2) {   
+            if (status.id <= 2) { 
                 setTimeout(checkStatus, 1000);
             } else {
                 const finalOutput = stdout ? atob(stdout) : (stderr ? atob(stderr) : (compile_output ? atob(compile_output) : "No output"));
@@ -173,7 +198,7 @@ const runCode = async () => {
         <div className="mainWrap">
             <div className="aside">
                 <div className="asideInner">
-                    <div className="logo">
+                    <div className="logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <img className="logoImage" src="/code-sync2.png" alt="logo" />
                     </div>
                     <h3>Select Theme</h3>
@@ -204,7 +229,7 @@ const runCode = async () => {
                     <h3>Connected</h3>
                     <div className="clientsList">
                         {clients.map((client) => (
-                            <Client key={client.socketId} username={client.username} />
+                            <Client key={client.socketId} username={client.username} avatar={client.avatar} />
                         ))}
                     </div>
                 </div>
@@ -222,7 +247,7 @@ const runCode = async () => {
                     roomId={roomId} 
                     language={language}
                     theme={theme} // Pass the theme prop
-                    username={location.state?.username}
+                    username={currentUser}
                     onCodeChange={(code) => { codeRef.current = code; }} 
                 />
                 <div className="outputBox">

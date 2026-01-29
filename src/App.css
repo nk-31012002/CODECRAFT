@@ -186,3 +186,23 @@ footer a:hover{
     font-weight: bold;
     pointer-events: none; /* Allows clicking "through" the label */
 }
+
+.googleBtn {
+    margin-top: 10px;
+    width: 100%;
+    font-weight: bold;
+}
+.divider {
+    margin: 10px 0;
+    text-align: center;
+    color: #eee;
+}.googleBtn {
+    margin-top: 10px;
+    width: 100%;
+    font-weight: bold;
+}
+.divider {
+    margin: 10px 0;
+    text-align: center;
+    color: #eee;
+}
