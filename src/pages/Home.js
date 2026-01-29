@@ -4,8 +4,7 @@ import toast from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-
-const Home = () =>{
+const Home = () => {
     const navigate = useNavigate();
     const [roomId, setRoomId] = useState('');
     const [username, setUsername] = useState('');
@@ -84,16 +83,16 @@ useEffect(() => {
         e.preventDefault();
         const id = uuidV4();
         setRoomId(id);
-        toast.success('Create a new room');
+        toast.success('Created a new room');
     };
 
     const joinRoom = () => {
-        if(!roomId || !username){
+        if (!roomId || !username) {
             toast.error('ROOM ID & username is required');
-            return
+            return;
         }
 
-        navigate(`/editor/${roomId}`,{
+        navigate(`/editor/${roomId}`, {
             state: {
                 username,
             },
@@ -106,7 +105,12 @@ useEffect(() => {
     //     }
     // };
 
-    return (
+    const handleLogout = () => {
+        setUsername('');
+        window.location.href = '/logout';
+    };
+
+        return (
         <div className="homePageWrapper">
             <div className="formWrapper">
                 <img className="homePageLogo" src="/code-sync2.png" alt="code-sync2-logo"/>
@@ -156,15 +160,8 @@ useEffect(() => {
                     </span>
                 </div>
             </div>
-            <footer>
-                <h4>
-                    Built with <a href="https://www.linkedin.com/in/nagendra-kumar-2073aa235/">Nk</a>
-                </h4>
-            </footer>
         </div>
-    )
+    );
 }
 
 export default Home;
-
-

@@ -15,7 +15,6 @@ const EditorPage = () => {
     const { roomId } = useParams();
     const reactNavigator = useNavigate();
 
-    // New States for Advancement
     const [clients, setClients] = useState([]);
     const [language, setLanguage] = useState("javascript");
     const [output, setOutput] = useState("");
