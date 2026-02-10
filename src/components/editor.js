@@ -77,14 +77,22 @@ const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username, 
         editorRef.current = editor;
         editor.focus();
 
-        monaco.editor.defineTheme('monokai', {
+        // src/components/editor.js
+        monaco.editor.defineTheme('greyish-black', {
             base: 'vs-dark',
             inherit: true,
-            rules: [{ background: '272822' }],
+            rules: [
+                { background: '1a1a1a' }, // The editor background
+                { token: 'comment', foreground: '75715e' },
+            ],
             colors: {
-                'editor.background': '#272822',
+                'editor.background': '#1a1a1a', // Greyish-black hex
+                'editorCursor.foreground': '#ffffff',
+                'editor.lineHighlightBackground': '#2a2a2a', // Subtle grey highlight
+                'editorIndentGuide.background': '#333333',
             }
         });
+        monaco.editor.setTheme('greyish-black');
 
         // 1. Listen for local cursor movement
         editor.onDidChangeCursorPosition((e) => {
