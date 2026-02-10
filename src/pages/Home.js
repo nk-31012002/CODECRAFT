@@ -158,7 +158,7 @@ useEffect(() => {
             </div>
             <footer>
                 <h4>
-                    Built with <a href="https://www.linkedin.com/in/nagendra-kumar-2073aa235/">Nk</a>
+                    Created with Vision
                 </h4>
             </footer>
         </div>
