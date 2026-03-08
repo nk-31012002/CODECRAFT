@@ -1,70 +1,102 @@
-# Getting Started with Create React App
+# CodeCraft – Real-Time Collaborative Code Editor
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+CodeCraft is a **high-performance, real-time collaborative code editor** designed for developers to write, share, and execute code together. Built with **React, Node.js, Socket.io, and the Monaco Editor**, it provides a **VS Code-like experience directly in the browser** with live cursor tracking and multi-language support.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Features
 
-### `npm start`
+### Real-Time Collaboration
+Simultaneous editing with **low-latency synchronization** powered by WebSockets.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Live Cursor Tracking
+See exactly where your teammates are typing with **named remote cursors and visual labels**.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Multi-Language Support
+Write and run code in:
 
-### `npm test`
+- JavaScript
+- Python
+- C++
+- Java
+- C#
+- PHP
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Code Execution
+Integrated with **Piston API** and **Judge0** to compile and run code directly in the browser.
 
-### `npm run build`
+### Google Authentication
+Secure user login via **Supabase Auth** and **Google OAuth** to automatically sync profiles.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Customizable Themes
+Toggle between:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- VS Dark  
+- Light  
+- High Contrast  
+- Custom **Greyish-Black** theme
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Room-Based Sync
+Generate unique **Room IDs using UUID** to invite colleagues for private coding sessions.
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🛠️ Tech Stack
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Frontend
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **React.js** – Core framework for UI components and state management  
+- **Monaco Editor** – The powerful engine behind VS Code for syntax highlighting and IntelliSense  
+- **Socket.io-client** – Real-time bidirectional communication  
+- **Supabase** – Authentication and user session management  
+- **React Hot Toast** – Notifications for joins, leaves, and errors  
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Backend
 
-## Learn More
+- **Node.js & Express** – Server-side logic and static file hosting  
+- **Socket.io** – Managing room events such as `JOIN`, `CODE_CHANGE`, and `CURSOR_CHANGE`  
+- **Judge0 / Piston API** – Remote code execution environments  
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🔧 Installation & Setup
 
-### Code Splitting
+### 1. Prerequisites
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Make sure you have:
 
-### Analyzing the Bundle Size
+- **Node.js (v16+ recommended)**
+- **A Supabase Project** (for Google Auth)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+### 2. Clone the Repository
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+git clone https://github.com/yourusername/codecraft.git
+cd codecraft
+```
 
-### Advanced Configuration
+---
+#### 3. Install Dependencies
+```npm install```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+### 4. Environment Variables
+- **REACT_APP_SUPABASE_URL=your_supabase_url**
+- **REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key**
+- **PORT=5000**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+### 5. Run the Application
+```npm start```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+### 🌐 Live Demo
+**You can try the application here:**
+
+- PS: Please wait 30–40 seconds for the application to fully load. 
+```https://codecraft-nk.onrender.com/```
