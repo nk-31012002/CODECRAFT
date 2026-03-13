@@ -172,13 +172,14 @@ footer a:hover{
 /* Remote Cursor Styling */
 .remote-cursor {
     width: 2px !important;
+    background: #4aed88; /* Bright green */
     height: 20px;
     z-index: 100;
 }
 
 .remote-cursor-label {
     position: absolute;
-    top: -20px;
+    top: -22px;
     left: 0;
     background: #4aed88;
     color: #000;
@@ -187,6 +188,7 @@ footer a:hover{
     border-radius: 3px;
     white-space: nowrap;
     font-weight: bold;
+    z-index: 101;
     pointer-events: none; /* Allows clicking "through" the label */
 }
 

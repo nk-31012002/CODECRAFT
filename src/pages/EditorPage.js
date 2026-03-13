@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useRef, useState } from "react";
 import Client from "../components/Client";
 import Editor from "../components/editor";
@@ -120,6 +121,31 @@ const runCode = async () => {
         return;
     }
 
+    const code = codeRef.current;
+    let stdin = "";
+
+    const needsInput = /(cin\s*>>|scanf|input\(|readline|System\.in|fs\.readFileSync\(0\))/g.test(code);
+
+if (needsInput) {
+        const { value: text } = await Swal.fire({
+            title: 'Input Required',
+            input: 'textarea',
+            inputLabel: 'Your code asks for data. Enter values below:',
+            inputPlaceholder: 'Example: 10 20',
+            showCancelButton: true,
+            background: '#1e1e1e', // Matches your editor theme
+            color: '#fff',
+            confirmButtonColor: '#4aed88',
+            inputAttributes: {
+                'aria-label': 'Type your input here'
+            }
+        });
+
+        if (text === undefined) return; // User cancelled
+        stdin = text;
+    }
+
+
     setIsCompiling(true);
     setOutput("Compiling...");
 
@@ -141,6 +167,7 @@ const runCode = async () => {
         const response = await axios.post(SUBMIT_URL, {
             language_id: languageMap[language],
             source_code: btoa(codeRef.current),
+            stdin: btoa(stdin),
         });
 
         const token = response.data.token;
