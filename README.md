@@ -98,7 +98,7 @@ cd codecraft
 ### 🌐 Live Demo
 **You can try the application here:**
 
-```[https://rtce-spl0.onrender.com/](https://rtce-spl0.onrender.com/)```
+```https://rtce-spl0.onrender.com/```
 
 
 - PS: Please wait 30–40 seconds for the application to fully load. 
