@@ -6,6 +6,8 @@ const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username, 
     const editorRef = useRef(null);
     const cursorsRef = useRef({});
     const monacoRef = useRef(null);
+    const isRemoteChange = useRef(false);
+
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
@@ -31,15 +33,12 @@ const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username, 
 
         // 1. Local Cursor Movement
         editor.onDidChangeCursorPosition((e) => {
-            if (socketRef.current) {
-                const payload = socketRef.current.emit(ACTIONS.CURSOR_CHANGE, {
-                    roomId,
-                    cursor: e.position,
-                    // Fix: Access the nested username string from the object
-                    username: username?.username || "Anonymous", 
-                });
-                console.log("SENDING CURSOR:", payload); // Check if username is a string or object here
-                socketRef.current.emit(ACTIONS.CURSOR_CHANGE, payload);
+                if (socketRef.current && !isRemoteChange.current) {
+                    socketRef.current.emit(ACTIONS.CURSOR_CHANGE, {
+                        roomId,
+                        cursor: e.position,
+                        username: username?.username || "Anonymous",
+                    });
             }
         });
     }
@@ -51,26 +50,25 @@ const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username, 
 
         // Listen for remote code changes
         socket.on(ACTIONS.CODE_CHANGE, ({ code }) => {
-            if (editorRef.current && code !== null) {
-                const currentCode = editorRef.current.getValue();
-                if (code !== currentCode) {
-                    editorRef.current.setValue(code);
+                if (editorRef.current && code !== null) {
+                    const currentCode = editorRef.current.getValue();
+                    if (code !== currentCode) {
+                        const position = editorRef.current.getPosition();
+                        isRemoteChange.current = true;
+                        editorRef.current.setValue(code);
+                        const model = editorRef.current.getModel();
+                        const safePosition = model.validatePosition(position);
+                        editorRef.current.setPosition(safePosition);
+                        isRemoteChange.current = false;
+                    }
                 }
-            }
-        });
+            });
 
-        // Listen for remote cursor movement
-        socket.on(ACTIONS.CURSOR_CHANGE, ({ data }) => {
-            console.log("RECEIVED CURSOR:", data); // Look at data.username
-            if (editorRef.current && monacoRef.current) {
-                updateRemoteCursor(editorRef.current, 
-                    monacoRef.current, 
-                    data.socketId, 
-                    data.cursor, 
-                    data.remoteUser
-                );
-            }
-        });
+            socket.on(ACTIONS.CURSOR_CHANGE, ({ socketId, cursor, username }) => {
+                if (editorRef.current && monacoRef.current) {
+                    updateRemoteCursor(editorRef.current, monacoRef.current, socketId, cursor, username);
+                }
+            });
 
         return () => {
             socket.off(ACTIONS.CODE_CHANGE);
@@ -111,7 +109,7 @@ const EditorComponent = ({ socketRef, roomId, onCodeChange, language, username, 
     function handleEditorChange(value) {
         onCodeChange(value);
         // Only emit if the LOCAL user is the one typing
-        if (socketRef.current && editorRef.current?.hasTextFocus()) { 
+        if (socketRef.current && editorRef.current?.hasTextFocus() && !isRemoteChange.current) { 
             socketRef.current.emit(ACTIONS.CODE_CHANGE, {
                 roomId,
                 code: value,
